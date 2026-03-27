@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EduMitra — AI-powered student performance prediction and monitoring system. Track, analyze, and improve academic success.">
+    <title>EduMitra — Student Performance Prediction & Monitoring</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6C63FF',
+                        'primary-light': '#8B83FF',
+                        secondary: '#FF6584',
+                        accent: '#43E97B',
+                        dark: { 900: '#0F0E17', 800: '#1A1A2E', 700: '#16213E', 600: '#1F3460' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="overflow-x-hidden">
+    <div class="animated-bg"></div>
+
+    <!-- Floating Decorative Elements -->
+    <div class="floating-element" style="top:10%;left:5%;animation-delay:0s">📚</div>
+    <div class="floating-element" style="top:20%;right:10%;animation-delay:-3s;font-size:2.5rem">🎓</div>
+    <div class="floating-element" style="top:60%;left:8%;animation-delay:-7s;font-size:2rem">📊</div>
+    <div class="floating-element" style="top:70%;right:5%;animation-delay:-5s">🧠</div>
+    <div class="floating-element" style="top:40%;left:70%;animation-delay:-10s;font-size:2rem">📈</div>
+    <div class="floating-element" style="top:85%;left:40%;animation-delay:-2s;font-size:2rem">💡</div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-4" style="background:rgba(15,14,23,0.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(108,99,255,0.1)">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="logo">
+                <div class="logo-icon">🎓</div>
+                <span class="gradient-text">EduMitra</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/guide-user" class="text-sm font-medium hover:text-primary transition-colors" style="color:var(--text-secondary)">Guide</a>
+                <a href="/login" class="btn-primary btn-sm">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center px-6 pt-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <!-- Animated Logo -->
+            <div class="mb-8 fade-in-up">
+                <div class="inline-flex items-center justify-center w-28 h-28 rounded-3xl mb-6" style="background:var(--gradient-1);box-shadow:0 20px 60px rgba(108,99,255,0.3)">
+                    <span style="font-size:3.5rem">🎓</span>
+                </div>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-black mb-6 fade-in-up fade-in-up-delay-1">
+                <span class="gradient-text">EduMitra</span>
+            </h1>
+
+            <p class="text-xl md:text-2xl mb-4 font-light fade-in-up fade-in-up-delay-2" style="color:var(--text-secondary)">
+                Student Performance Prediction & Monitoring System
+            </p>
+
+            <p class="text-base md:text-lg mb-12 max-w-2xl mx-auto fade-in-up fade-in-up-delay-3" style="color:var(--text-muted)">
+                Harness the power of Machine Learning to track academic performance, predict risk levels, and get personalized improvement roadmaps — all in one intelligent platform.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in-up fade-in-up-delay-4">
+                <a href="/login" class="btn-primary text-lg px-10 py-4">
+                    Explore EduMitra →
+                </a>
+                <a href="/guide-user" class="btn-secondary text-lg px-10 py-4">
+                    Learn More
+                </a>
+            </div>
+
+            <!-- Feature Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 max-w-4xl mx-auto">
+                <div class="glass-card p-6 text-left fade-in-up fade-in-up-delay-2">
+                    <div class="text-3xl mb-3">📊</div>
+                    <h3 class="font-bold text-lg mb-2">Smart Analytics</h3>
+                    <p class="text-sm" style="color:var(--text-muted)">Interactive charts, graphs, and performance metrics at your fingertips.</p>
+                </div>
+                <div class="glass-card p-6 text-left fade-in-up fade-in-up-delay-3">
+                    <div class="text-3xl mb-3">🧠</div>
+                    <h3 class="font-bold text-lg mb-2">ML Predictions</h3>
+                    <p class="text-sm" style="color:var(--text-muted)">AI-powered risk analysis predicts academic outcomes before they happen.</p>
+                </div>
+                <div class="glass-card p-6 text-left fade-in-up fade-in-up-delay-4">
+                    <div class="text-3xl mb-3">🤖</div>
+                    <h3 class="font-bold text-lg mb-2">AI Advisor</h3>
+                    <p class="text-sm" style="color:var(--text-muted)">Personalized chatbot to create improvement roadmaps based on your data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="py-16 px-6" style="background:rgba(26,26,46,0.5)">
+        <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <div class="text-3xl font-black gradient-text">50+</div>
+                <div class="text-sm mt-1" style="color:var(--text-muted)">Students Tracked</div>
+            </div>
+            <div>
+                <div class="text-3xl font-black gradient-text-green">95%</div>
+                <div class="text-sm mt-1" style="color:var(--text-muted)">Prediction Accuracy</div>
+            </div>
+            <div>
+                <div class="text-3xl font-black gradient-text">5+</div>
+                <div class="text-sm mt-1" style="color:var(--text-muted)">Subjects Analyzed</div>
+            </div>
+            <div>
+                <div class="text-3xl font-black gradient-text-green">24/7</div>
+                <div class="text-sm mt-1" style="color:var(--text-muted)">AI Advisor Access</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 text-center" style="border-top:1px solid rgba(108,99,255,0.1)">
+        <div class="logo justify-center mb-4" style="font-size:1.2rem">
+            <div class="logo-icon" style="width:32px;height:32px;font-size:1rem;border-radius:10px">🎓</div>
+            <span class="gradient-text">EduMitra</span>
+        </div>
+        <p class="text-sm" style="color:var(--text-muted)">© 2026 EduMitra. Empowering students through AI-driven insights.</p>
+    </footer>
+</body>
+</html>

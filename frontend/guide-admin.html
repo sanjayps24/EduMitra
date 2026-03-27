@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EduMitra Admin Guide">
+    <title>Admin Guide — EduMitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { primary: '#6C63FF', 'primary-light': '#8B83FF', secondary: '#FF6584', accent: '#43E97B', dark: { 900: '#0F0E17', 800: '#1A1A2E', 700: '#16213E' } },
+                fontFamily: { sans: ['Inter', 'sans-serif'] }
+            }}
+        }
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <header class="sticky top-0 z-50 px-6 py-4" style="background:rgba(15,14,23,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(108,99,255,0.1)">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="/" class="logo" style="text-decoration:none;font-size:1.4rem">
+                <div class="logo-icon" style="width:38px;height:38px;font-size:1.1rem;border-radius:11px">🎓</div>
+                <span class="gradient-text">EduMitra</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <a href="/admin-dashboard" class="btn-primary btn-sm">← Back to Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-black mb-4"><span class="gradient-text">Admin Guide</span></h1>
+            <p style="color:var(--text-secondary)">Learn how to manage students, interpret visual analytics, and address alerts.</p>
+        </div>
+
+        <div class="space-y-4">
+            <div class="glass-card p-6 flex gap-5 items-start">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg" style="background:var(--gradient-1)">1</div>
+                <div>
+                    <h4 class="font-bold text-base mb-1">Create & Manage Students</h4>
+                    <p class="text-sm" style="color:var(--text-muted)">Click the <strong>"➕ Add Student"</strong> button on the dashboard to register a new student. Click the <strong>✏️ edit button</strong> on any student row to update their details or add exam records.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg" style="background:var(--gradient-1)">2</div>
+                <div>
+                    <h4 class="font-bold text-base mb-1">Visual Analytics</h4>
+                    <p class="text-sm" style="color:var(--text-muted)">The dashboard features interactive charts. The <strong>Pie Chart</strong> automatically categorizes students into Performance brackets with exact percentages. The <strong>Bar Chart</strong> compares Average Exams vs Attendance across departments.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg" style="background:var(--gradient-1)">3</div>
+                <div>
+                    <h4 class="font-bold text-base mb-1">Automated Alerts</h4>
+                    <p class="text-sm" style="color:var(--text-muted)">If any student drops below a 50% attendance rate or scores a sub-40% exam average, a red <strong>High-Risk Alert Banner</strong> will automatically appear at the top of the dashboard. Address these immediately.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg" style="background:var(--gradient-1)">4</div>
+                <div>
+                    <h4 class="font-bold text-base mb-1">Real-time Badges</h4>
+                    <p class="text-sm" style="color:var(--text-muted)">Modifying a student's academic record will instantly trigger the Machine Learning pipeline. The student's "Risk Classification" badges will reload and reflect their new status instantly.</p>
+                </div>
+            </div>
+            <div class="glass-card p-6 flex gap-5 items-start">
+                <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg" style="background:var(--gradient-1)">5</div>
+                <div>
+                    <h4 class="font-bold text-base mb-1">View Student Profile</h4>
+                    <p class="text-sm" style="color:var(--text-muted)">Click any <strong>student row</strong> to drill down into their personal radar charts, performance trends, and risk analysis metrics.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <p class="text-sm" style="color:var(--text-muted)">© 2026 EduMitra Admin Documentation</p>
+        </div>
+    </main>
+</body>
+</html>

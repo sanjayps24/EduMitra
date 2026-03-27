@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to EduMitra — Access your student performance dashboard or admin panel.">
+    <title>Login — EduMitra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { primary: '#6C63FF', 'primary-light': '#8B83FF', secondary: '#FF6584', accent: '#43E97B', dark: { 900: '#0F0E17', 800: '#1A1A2E', 700: '#16213E' } },
+                fontFamily: { sans: ['Inter', 'sans-serif'] }
+            }}
+        }
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="animated-bg"></div>
+
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8 fade-in-up">
+            <a href="/" class="inline-flex flex-col items-center gap-3 no-underline">
+                <div class="logo-icon" style="width:56px;height:56px;font-size:1.6rem;border-radius:18px">🎓</div>
+                <span class="gradient-text text-3xl font-black">EduMitra</span>
+            </a>
+            <p class="text-sm mt-2" style="color:var(--text-muted)">Sign in to your account</p>
+        </div>
+
+        <!-- Role Toggle -->
+        <div class="flex rounded-2xl p-1 mb-6 fade-in-up fade-in-up-delay-1" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
+            <button data-role-toggle="user" class="active flex-1 py-3 rounded-xl text-sm font-semibold transition-all" id="userToggle">
+                👤 Student
+            </button>
+            <button data-role-toggle="admin" class="flex-1 py-3 rounded-xl text-sm font-semibold transition-all" id="adminToggle">
+                🔑 Admin
+            </button>
+        </div>
+
+        <!-- ═══ USER SECTION ═══ -->
+        <div data-role-section="user" class="active fade-in-up fade-in-up-delay-2">
+            <div class="glass-card p-8">
+                <h2 class="text-xl font-bold mb-6">Student Login</h2>
+                <form id="userLoginForm">
+                    <div class="mb-4">
+                        <label class="form-label">USN (University Seat Number)</label>
+                        <input type="text" id="userUsn" class="form-input" placeholder="e.g., 1ED22CS001" autocomplete="username" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="userPassword" class="form-input" placeholder="Enter your password" autocomplete="current-password" required>
+                        <p class="text-xs mt-2" style="color:var(--text-muted)">💡 Default password is your USN in lowercase</p>
+                    </div>
+                    <div id="userLoginError" class="mb-4 p-3 rounded-xl text-sm font-medium" style="background:rgba(255,71,87,0.1);color:var(--danger);display:none"></div>
+                    <button type="submit" class="btn-primary w-full justify-center text-base py-4">Login →</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ═══ ADMIN SECTION ═══ -->
+        <div data-role-section="admin" class="fade-in-up" style="display:none">
+            <!-- Admin Tabs: Login / Signup -->
+            <div class="flex rounded-xl p-1 mb-4" style="background:rgba(255,255,255,0.03)">
+                <button data-auth-tab="adminLogin" class="active flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all">Login</button>
+                <button data-auth-tab="adminSignup" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all">Sign Up</button>
+            </div>
+
+            <!-- Admin Login Form -->
+            <div data-auth-form="adminLogin" class="active glass-card p-8">
+                <h2 class="text-xl font-bold mb-6">Admin Login</h2>
+                <form id="adminLoginForm">
+                    <div class="mb-4">
+                        <label class="form-label">Admin ID</label>
+                        <input type="text" id="adminId" class="form-input" placeholder="Enter admin ID" autocomplete="username" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="adminPassword" class="form-input" placeholder="Enter password" autocomplete="current-password" required>
+                        <p class="text-xs mt-2" style="color:var(--text-muted)">💡 Demo: admin / admin123</p>
+                    </div>
+                    <div id="adminLoginError" class="mb-4 p-3 rounded-xl text-sm font-medium" style="background:rgba(255,71,87,0.1);color:var(--danger);display:none"></div>
+                    <button type="submit" class="btn-primary w-full justify-center text-base py-4">Login →</button>
+                </form>
+            </div>
+
+            <!-- Admin Signup Form -->
+            <div data-auth-form="adminSignup" class="glass-card p-8" style="display:none">
+                <h2 class="text-xl font-bold mb-6">Create Admin Account</h2>
+                <form id="adminSignupForm">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="form-label">Admin ID</label>
+                            <input type="text" id="signupAdminId" class="form-input" placeholder="Choose an ID" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="signupName" class="form-input" placeholder="Your name" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="signupEmail" class="form-input" placeholder="admin@edumitra.com" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="form-label">Password</label>
+                            <input type="password" id="signupPassword" class="form-input" placeholder="Min 6 chars" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Confirm</label>
+                            <input type="password" id="signupConfirm" class="form-input" placeholder="Re-enter" required>
+                        </div>
+                    </div>
+                    <div id="adminSignupError" class="mb-4 p-3 rounded-xl text-sm font-medium" style="background:rgba(255,71,87,0.1);color:var(--danger);display:none"></div>
+                    <button type="submit" class="btn-primary w-full justify-center text-base py-4">Create Account →</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="/" class="text-sm font-medium hover:text-primary transition-colors" style="color:var(--text-muted)">← Back to Home</a>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        // Role toggle visibility
+        document.querySelectorAll('[data-role-toggle]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const role = btn.dataset.roleToggle;
+                document.querySelectorAll('[data-role-toggle]').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = 'transparent';
+                    b.style.color = 'var(--text-muted)';
+                });
+                btn.classList.add('active');
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'white';
+
+                document.querySelectorAll('[data-role-section]').forEach(s => {
+                    s.style.display = 'none';
+                    s.classList.remove('active');
+                });
+                const section = document.querySelector(`[data-role-section="${role}"]`);
+                section.style.display = 'block';
+                section.classList.add('active');
+            });
+        });
+
+        // Set initial active state
+        document.getElementById('userToggle').style.background = 'var(--primary)';
+        document.getElementById('userToggle').style.color = 'white';
+
+        // Auth tab switching
+        document.querySelectorAll('[data-auth-tab]').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('[data-auth-tab]').forEach(t => {
+                    t.classList.remove('active');
+                    t.style.background = 'transparent';
+                    t.style.color = 'var(--text-muted)';
+                });
+                tab.classList.add('active');
+                tab.style.background = 'rgba(108,99,255,0.2)';
+                tab.style.color = 'var(--primary-light)';
+
+                document.querySelectorAll('[data-auth-form]').forEach(f => {
+                    f.style.display = 'none';
+                    f.classList.remove('active');
+                });
+                const form = document.querySelector(`[data-auth-form="${tab.dataset.authTab}"]`);
+                form.style.display = 'block';
+                form.classList.add('active');
+            });
+        });
+
+        // Set initial auth tab
+        document.querySelector('[data-auth-tab="adminLogin"]').style.background = 'rgba(108,99,255,0.2)';
+        document.querySelector('[data-auth-tab="adminLogin"]').style.color = 'var(--primary-light)';
+    </script>
+</body>
+</html>
