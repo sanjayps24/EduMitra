@@ -31,7 +31,7 @@ def classify_student(avg_exam: float, avg_assign: float = None) -> str:
         return "Good"
     elif score >= 50:
         return "Average"
-    return "Bad"
+    return "Poor"
 
 
 def predict_risk(exam_score: float, assignment_score: float, attendance: float) -> dict:
@@ -81,18 +81,20 @@ def predict_student_performance(stats: dict) -> dict:
     avg_assign = stats.get("avg_assignment", 0)
     avg_att = stats.get("avg_attendance", 0)
 
-    classification = classify_student(avg_exam)
+    classification = classify_student(avg_exam, avg_assign)
     risk = predict_risk(avg_exam, avg_assign, avg_att)
 
-    # Separate risk for attendance and exams
-    att_risk = predict_risk(avg_exam, avg_assign, avg_att)
-    exam_risk = predict_risk(avg_exam, avg_assign, 75)  # normalize attendance
+    # Separate risk for attendance and exams/assignments
+    att_risk_level = "High Risk" if avg_att < 60 else ("Medium Risk" if avg_att < 75 else "Low Risk")
+    exam_risk_level = "High Risk" if avg_exam < 50 else ("Medium Risk" if avg_exam < 70 else "Low Risk")
+    assign_risk_level = "High Risk" if avg_assign < 50 else ("Medium Risk" if avg_assign < 70 else "Low Risk")
 
     return {
         "classification": classification,
         "overall_risk": risk,
-        "attendance_risk": "High Risk" if avg_att < 60 else ("Medium Risk" if avg_att < 75 else "Low Risk"),
-        "exam_risk": "High Risk" if avg_exam < 50 else ("Medium Risk" if avg_exam < 70 else "Low Risk"),
+        "attendance_risk": att_risk_level,
+        "exam_risk": exam_risk_level,
+        "assignment_risk": assign_risk_level,
         "scores": {
             "avg_exam": avg_exam,
             "avg_assignment": avg_assign,

@@ -685,6 +685,142 @@ body {
 .fade-in-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
 .fade-in-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
 
+/* ── Toast Notifications ───────────────────────────────── */
+.toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    padding: 16px 24px;
+    border-radius: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    transform: translateX(120%);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast.active {
+    transform: translateX(0);
+}
+
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+.toast.info { border-left: 4px solid var(--info); }
+
+/* ── Features Modal Specifics ──────────────────────────── */
+.feature-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    transition: var(--transition);
+}
+
+.feature-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-1);
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+/* ── Status Colors ───────────────────────────────────── */
+.text-poor { color: var(--danger); }
+.text-average { color: var(--warning); }
+.text-good { color: var(--success); }
+
+.bg-poor { background: rgba(255, 71, 87, 0.1); }
+.bg-average { background: rgba(255, 165, 2, 0.1); }
+.bg-good { background: rgba(46, 213, 115, 0.1); }
+
+/* ── Interactive Range ─────────────────────────────────── */
+.range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    outline: none;
+}
+
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--primary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.range-input::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 8px rgba(108, 99, 255, 0.1);
+}
+
+/* ── Educational Cards ────────────────────────────────── */
+.edu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.edu-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 24px;
+    text-align: center;
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.edu-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-8px);
+    border-color: var(--primary-light);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.edu-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 768px) {
     .chatbot-panel {

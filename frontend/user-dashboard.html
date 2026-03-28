@@ -30,6 +30,7 @@
             </a>
             <div class="flex items-center gap-4">
                 <span class="text-sm" style="color:var(--text-muted)" id="userUSN"></span>
+                <button onclick="openFeaturesModal()" class="btn-sm btn-primary" style="padding:8px 16px;font-size:0.8rem">✨ Features</button>
                 <a href="/guide-user" class="text-sm hover:text-primary transition-colors" style="color:var(--text-muted)">Guide</a>
                 <button onclick="userLogout()" class="btn-sm btn-secondary" style="padding:8px 16px;font-size:0.8rem">Logout</button>
             </div>
@@ -104,14 +105,53 @@
             <!-- Risk Prediction -->
             <div class="glass-card p-6 fade-in-up">
                 <h2 class="text-lg font-bold mb-4">
-                    <span class="gradient-text">🛡️ Risk Prediction</span>
+                    <span class="gradient-text">🛡️ Overall Risk Analysis</span>
                 </h2>
                 <div class="flex items-center gap-4 mb-4">
                     <span id="userRisk" class="badge" style="font-size:1rem;padding:8px 20px">—</span>
-                    <span class="text-xs" style="color:var(--text-muted)">ML-powered prediction</span>
+                    <span class="text-xs" style="color:var(--text-muted)">AI-powered prediction</span>
                 </div>
                 <div id="riskExplanation" class="mt-4">
                     <div class="spinner mx-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Risk Calculator -->
+        <div class="glass-card p-6 mb-8 fade-in-up">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                <span>🧮</span> Interactive Risk Prediction Tool
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="form-label">Exam Marks %</label>
+                            <span class="font-bold text-primary" id="calcExamVal">75%</span>
+                        </div>
+                        <input type="range" id="calcExam" class="range-input" min="0" max="100" value="75" oninput="updateCalculator()">
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="form-label">Attendance %</label>
+                            <span class="font-bold text-accent" id="calcAttVal">75%</span>
+                        </div>
+                        <input type="range" id="calcAtt" class="range-input" min="0" max="100" value="75" oninput="updateCalculator()">
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="form-label">Assignment Score %</label>
+                            <span class="font-bold text-secondary" id="calcAssignVal">75%</span>
+                        </div>
+                        <input type="range" id="calcAssign" class="range-input" min="0" max="100" value="75" oninput="updateCalculator()">
+                    </div>
+                </div>
+                <div class="flex flex-col items-center justify-center p-6 rounded-2xl bg-dark-900 border border-white/5">
+                    <div class="text-sm opacity-60 mb-2">Predicted Risk Level</div>
+                    <div id="calcLevel" class="text-3xl font-black mb-4 badge badge-low-risk">LOW RISK</div>
+                    <div class="w-full space-y-4" id="calcProbBars">
+                        <!-- Content updated by JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,7 +173,7 @@
         </div>
 
         <!-- Academic Records -->
-        <div class="glass-card overflow-hidden fade-in-up">
+        <div class="glass-card overflow-hidden fade-in-up mb-8">
             <div class="p-4" style="border-bottom:1px solid rgba(255,255,255,0.06)">
                 <h2 class="text-lg font-bold gradient-text">📋 My Academic Records</h2>
             </div>
@@ -153,9 +193,86 @@
                 </table>
             </div>
         </div>
+
+        <!-- Educational Resources -->
+        <div class="mb-8 fade-in-up">
+            <h2 class="text-2xl font-black mb-6">
+                <span class="gradient-text">🎓 Educational Hub</span>
+            </h2>
+            <div class="edu-grid">
+                <a href="https://www.coursera.org" target="_blank" class="edu-card">
+                    <div class="edu-logo">🌐</div>
+                    <div class="font-bold">Coursera</div>
+                    <div class="text-xs opacity-60">Global Certifications</div>
+                </a>
+                <a href="https://www.udemy.com" target="_blank" class="edu-card">
+                    <div class="edu-logo">💻</div>
+                    <div class="font-bold">Udemy</div>
+                    <div class="text-xs opacity-60">Skill-based Learning</div>
+                </a>
+                <a href="https://swayam.gov.in" target="_blank" class="edu-card">
+                    <div class="edu-logo">🇮🇳</div>
+                    <div class="font-bold">Swayam</div>
+                    <div class="text-xs opacity-60">NPTEL Courses</div>
+                </a>
+                <a href="https://www.khanacademy.org" target="_blank" class="edu-card">
+                    <div class="edu-logo">📖</div>
+                    <div class="font-bold">Khan Academy</div>
+                    <div class="text-xs opacity-60">Free Fundamentals</div>
+                </a>
+                <a href="https://www.youtube.com/@CodeWithHarry" target="_blank" class="edu-card">
+                    <div class="edu-logo">📺</div>
+                    <div class="font-bold">YouTube</div>
+                    <div class="text-xs opacity-60">Academic Support</div>
+                </a>
+            </div>
+        </div>
     </main>
 
     <!-- Chatbot will be injected by JS -->
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Features Modal -->
+    <div class="modal-overlay" id="featuresModal">
+        <div class="modal-content" style="max-width:600px">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-black gradient-text">Student Dashboard Features</h2>
+                <button onclick="closeFeaturesModal()" class="btn-icon">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div class="feature-item">
+                    <div class="feature-icon">🛡️</div>
+                    <div>
+                        <h4 class="font-bold">Risk Prediction System</h4>
+                        <p class="text-sm opacity-70">Monitor your overall performance risk level powered by Machine Learning.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🧮</div>
+                    <div>
+                        <h4 class="font-bold">Interactive Risk Calculator</h4>
+                        <p class="text-sm opacity-70">Experiment with your marks and attendance to see how they impact your risk level.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div>
+                        <h4 class="font-bold">Detailed Analytics</h4>
+                        <p class="text-sm opacity-70">Subject-wise charts and performance trends to help you identify focus areas.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💬</div>
+                    <div>
+                        <h4 class="font-bold">AI Academic Chatbot</h4>
+                        <p class="text-sm opacity-70">Get personalized roadmaps and time management tips for your specific risk category.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="/js/api.js"></script>
     <script src="/js/chatbot.js"></script>

@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize chatbot
     new ChatbotWidget(studentId);
 
+    // Initial Calculator update
+    updateCalculator();
+
     async function loadUserDashboard(id) {
         try {
             const data = await API.getStudent(id);
@@ -94,24 +97,37 @@ document.addEventListener('DOMContentLoaded', () => {
     function getRiskExplanation(prediction) {
         const p = prediction;
         let html = '<div class="space-y-3">';
-        html += `<div class="flex items-center gap-3">
-            <span style="color:var(--text-muted);font-size:0.85rem">Attendance Risk:</span>
-            <span class="badge badge-${p.attendance_risk.toLowerCase().replace(' ', '-')}">${p.attendance_risk}</span>
-        </div>`;
-        html += `<div class="flex items-center gap-3">
-            <span style="color:var(--text-muted);font-size:0.85rem">Exam Score Risk:</span>
-            <span class="badge badge-${p.exam_risk.toLowerCase().replace(' ', '-')}">${p.exam_risk}</span>
+        
+        const getRiskBadge = (level) => {
+            const cls = level.toLowerCase().replace(' ', '-');
+            return `<span class="badge badge-${cls}">${level}</span>`;
+        };
+
+        html += `<div class="grid grid-cols-1 gap-2">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                <span class="text-sm opacity-60">Attendance Standing:</span>
+                ${getRiskBadge(p.attendance_risk)}
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                <span class="text-sm opacity-60">Exam Standing:</span>
+                ${getRiskBadge(p.exam_risk)}
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                <span class="text-sm opacity-60">Assignment Standing:</span>
+                ${getRiskBadge(p.assignment_risk)}
+            </div>
         </div>`;
 
         const probs = p.overall_risk.probabilities;
         if (probs) {
-            html += '<div class="mt-3">';
+            html += '<div class="mt-4 pt-4 border-t border-white/5">';
+            html += '<p class="text-xs font-bold mb-3 opacity-60">PROBABILITY BREAKDOWN</p>';
             Object.entries(probs).forEach(([k, v]) => {
-                const color = k === 'Low Risk' ? '#2ED573' : k === 'Medium Risk' ? '#FFA502' : '#FF4757';
-                html += `<div class="flex items-center gap-2 mb-2">
+                const color = k === 'Low Risk' ? 'var(--success)' : k === 'Medium Risk' ? 'var(--warning)' : 'var(--danger)';
+                html += `<div class="flex items-center gap-3 mb-3">
                     <span class="text-xs" style="width:90px;color:var(--text-muted)">${k}</span>
-                    <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
-                        <div style="width:${Math.min(v, 100)}%;height:100%;background:${color};border-radius:4px;transition:width 1s ease"></div>
+                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+                        <div style="width:${Math.min(v, 100)}%;height:100%;background:${color};border-radius:3px;transition:width 1s ease"></div>
                     </div>
                     <span class="text-xs font-semibold" style="width:40px;text-align:right">${v}%</span>
                 </div>`;
@@ -329,4 +345,95 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Logout
     window.userLogout = function() { API.logout(); };
+
+    // ── Risk Calculator ─────────────────────────
+    let calcTimeout;
+    window.updateCalculator = function() {
+        const exam = parseFloat(document.getElementById('calcExam').value);
+        const att = parseFloat(document.getElementById('calcAtt').value);
+        const assign = parseFloat(document.getElementById('calcAssign').value);
+
+        document.getElementById('calcExamVal').textContent = `${exam}%`;
+        document.getElementById('calcAttVal').textContent = `${att}%`;
+        document.getElementById('calcAssignVal').textContent = `${assign}%`;
+
+        clearTimeout(calcTimeout);
+        calcTimeout = setTimeout(async () => {
+            try {
+                const prediction = await API.getInteractivePrediction({
+                    exam_score: exam,
+                    attendance: att,
+                    assignment_score: assign
+                });
+                renderInteractiveRisk(prediction);
+            } catch (err) {
+                console.error('Interactive prediction failed:', err);
+            }
+        }, 400);
+    };
+
+    function renderInteractiveRisk(prediction) {
+        const levelEl = document.getElementById('calcLevel');
+        const level = prediction.risk_level;
+        levelEl.textContent = level.toUpperCase();
+        levelEl.className = `text-3xl font-black mb-4 badge badge-${level.toLowerCase().replace(' ', '-')}`;
+
+        const barsEl = document.getElementById('calcProbBars');
+        if (!barsEl) return;
+        barsEl.innerHTML = '';
+        Object.entries(prediction.probabilities).forEach(([k, v]) => {
+            const color = k === 'Low Risk' ? 'var(--success)' : k === 'Medium Risk' ? 'var(--warning)' : 'var(--danger)';
+            barsEl.innerHTML += `
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="opacity-60">${k}</span>
+                        <span class="font-bold">${v}%</span>
+                    </div>
+                    <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500" style="width:${v}%; background:${color}"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // ── Toast System ───────────────────────────
+    window.showToast = function(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+        toast.innerHTML = `
+            <span>${icons[type] || '🔔'}</span>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('active'), 10);
+        
+        // Remove after 4s
+        setTimeout(() => {
+            toast.classList.remove('active');
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    };
+
+    // ── Features Modal ─────────────────────────
+    window.openFeaturesModal = function() {
+        document.getElementById('featuresModal').classList.add('active');
+    };
+
+    window.closeFeaturesModal = function() {
+        document.getElementById('featuresModal').classList.remove('active');
+    };
+
+    // Close on overlay click
+    document.getElementById('featuresModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'featuresModal') closeFeaturesModal();
+    });
 });

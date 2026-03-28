@@ -102,6 +102,7 @@ class API {
     // ── Stats & Prediction ────────────────────────────
     static getStudentStats(id) { return this.get(`/api/students/${id}/stats`); }
     static getPrediction(id) { return this.get(`/api/students/${id}/predict`); }
+    static getInteractivePrediction(data) { return this.post('/api/predict/interactive', data); }
     static getDashboardSummary() { return this.get('/api/dashboard/summary'); }
 
     // ── Chatbot ───────────────────────────────────────

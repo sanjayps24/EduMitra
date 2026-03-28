@@ -33,6 +33,7 @@
                     👤 <span id="adminName">Admin</span>
                 </span>
                 <a href="/guide-admin" class="text-sm hover:text-primary transition-colors" style="color:var(--text-muted)">Guide</a>
+                <button onclick="openFeaturesModal()" class="btn-sm btn-primary" style="padding:8px 16px;font-size:0.8rem">✨ Features</button>
                 <button onclick="adminLogout()" class="btn-sm btn-secondary" style="padding:8px 16px;font-size:0.8rem">Logout</button>
             </div>
         </div>
@@ -71,6 +72,39 @@
             </div>
         </div>
 
+        <!-- High Risk Segmentation -->
+        <div class="mb-8 fade-in-up">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span>⚠️</span> High Risk Students by Category
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="filterByRiskType('attendance')" class="glass-card p-4 hover:border-danger text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold opacity-70">Attendance Risk</span>
+                        <span class="text-xl">📅</span>
+                    </div>
+                    <div class="text-2xl font-black text-danger" id="riskAttCount">0</div>
+                    <div class="text-xs mt-1 opacity-50 group-hover:opacity-100 transition-opacity">Click to view students →</div>
+                </button>
+                <button onclick="filterByRiskType('assignments')" class="glass-card p-4 hover:border-danger text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold opacity-70">Assignment Risk</span>
+                        <span class="text-xl">📋</span>
+                    </div>
+                    <div class="text-2xl font-black text-danger" id="riskAssignCount">0</div>
+                    <div class="text-xs mt-1 opacity-50 group-hover:opacity-100 transition-opacity">Click to view students →</div>
+                </button>
+                <button onclick="filterByRiskType('marks')" class="glass-card p-4 hover:border-danger text-left group">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold opacity-70">Marks Risk</span>
+                        <span class="text-xl">📝</span>
+                    </div>
+                    <div class="text-2xl font-black text-danger" id="riskMarksCount">0</div>
+                    <div class="text-xs mt-1 opacity-50 group-hover:opacity-100 transition-opacity">Click to view students →</div>
+                </button>
+            </div>
+        </div>
+
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="stat-card purple fade-in-up fade-in-up-delay-1">
@@ -89,7 +123,7 @@
                 <div class="text-xs mt-1" style="color:var(--warning)">⚡ Score 50-74%</div>
             </div>
             <div class="stat-card pink fade-in-up fade-in-up-delay-4">
-                <div class="text-sm font-medium mb-1" style="color:var(--text-muted)">At-Risk Students</div>
+                <div class="text-sm font-medium mb-1" style="color:var(--text-muted)">Poor Students</div>
                 <div class="text-3xl font-black" style="color:var(--danger)" id="badStudents">0</div>
                 <div class="text-xs mt-1" style="color:var(--danger)">⚠️ Score < 50%</div>
             </div>
@@ -132,7 +166,7 @@
                             <option value="">All</option>
                             <option value="Good">Good (≥75%)</option>
                             <option value="Average">Average (50-74%)</option>
-                            <option value="Bad">At-Risk (<50%)</option>
+                            <option value="Poor">Poor (<50%)</option>
                         </select>
                     </div>
                     <div>
@@ -275,6 +309,49 @@
                     <input type="password" id="createPassword" class="form-input" placeholder="Min 6 characters">
                 </div>
                 <button onclick="submitCreateStudent()" class="btn-primary w-full mt-4">Create Student</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Features Modal -->
+    <div class="modal-overlay" id="featuresModal">
+        <div class="modal-content" style="max-width:600px">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-black gradient-text">Admin Dashboard Features</h2>
+                <button onclick="closeFeaturesModal()" class="btn-icon">✕</button>
+            </div>
+            <div class="space-y-4">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div>
+                        <h4 class="font-bold">Overall Performance Visuals</h4>
+                        <p class="text-sm opacity-70">Pie and Bar charts showing real-time platform distribution and averages.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚠️</div>
+                    <div>
+                        <h4 class="font-bold">High Risk Segmentation</h4>
+                        <p class="text-sm opacity-70">Instantly filter students who are at risk specifically in Attendance, Assignments, or Exam Marks.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <div>
+                        <h4 class="font-bold">Smart Filters & Sort</h4>
+                        <p class="text-sm opacity-70">Deep search and filter by multiple academic criteria simultaneously.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">✏️</div>
+                    <div>
+                        <h4 class="font-bold">Academic Record Management</h4>
+                        <p class="text-sm opacity-70">Complete CRUD operations for student profiles and individual subject records.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

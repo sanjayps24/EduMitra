@@ -104,17 +104,45 @@ def _assignment_advice(avg_assignment: float) -> list[str]:
     return tips
 
 
+def _time_management_advice(risk_level: str) -> list[str]:
+    tips = ["\n⏳ **Time Management & Activity Tips:**"]
+    if risk_level == "High Risk":
+        tips.extend([
+            "• **Prioritize Ruthlessly**: Use the Eisenhower Matrix (Urgent vs Important). Focus ONLY on academic recovery for now.",
+            "• **Fixed Office Hours**: Block 1 hour daily to meet teachers or TAs for doubt clearing.",
+            "• **Digital Detox**: Use apps like 'Forest' or 'StayFocusd' to block distractions during study blocks.",
+            "• **Minimize Extra Activities**: Temporarily reduce participation in clubs or sports until your attendance and marks stabilize."
+        ])
+    elif risk_level == "Medium Risk":
+        tips.extend([
+            "• **Study Cycles**: Use 50-minute study blocks followed by 10-minute active breaks (stretching, walking).",
+            "• **Weekly Review**: Every Sunday, spend 45 minutes reviewing everything learned in the past week.",
+            "• **Balanced Involvement**: Limit extracurriculars to 1-2 key interests to ensure they don't impact your core academics.",
+            "• **Task Batching**: Group similar tasks (e.g., reading, solving problems) together to maintain flow."
+        ])
+    else:
+        tips.extend([
+            "• **Deep Work**: Dedicate 2-3 hours of uninterrupted 'deep work' to your most challenging projects.",
+            "• **Skill Expansion**: Use your efficient time management to pick up a new skill (coding, public speaking, etc.).",
+            "• **Advanced Projects**: Allocate time for personal research or building a portfolio.",
+            "• **Peer Mentoring**: Help others — it's the best way to manage your time while reinforcing your own learning."
+        ])
+    return tips
+
+
 def _general_roadmap(avg_exam: float, avg_attendance: float) -> list[str]:
     tips = ["\n🗺️ **Your Personalized 30-Day Improvement Roadmap:**"]
+    
+    risk_level = "High Risk" if avg_exam < 50 or avg_attendance < 65 else ("Medium Risk" if avg_exam < 70 else "Low Risk")
 
-    if avg_exam < 50 or avg_attendance < 65:
+    if risk_level == "High Risk":
         tips.extend([
             "**Week 1**: Audit all subjects. List topics you don't understand. Attend ALL classes.",
             "**Week 2**: Focus on 2 weakest subjects. Solve 10 problems/day. Meet professors during office hours.",
             "**Week 3**: Take mock tests for weak subjects. Review mistakes. Continue 100% attendance.",
             "**Week 4**: Full revision. Solve previous year papers under timed conditions. Stay confident!"
         ])
-    elif avg_exam < 70:
+    elif risk_level == "Medium Risk":
         tips.extend([
             "**Week 1**: Identify knowledge gaps with self-assessment tests per subject.",
             "**Week 2**: Deep dive into weak topics. Create mind maps and summary sheets.",
@@ -126,10 +154,10 @@ def _general_roadmap(avg_exam: float, avg_attendance: float) -> list[str]:
             "**Week 1**: Explore advanced reference books and research topics in your field.",
             "**Week 2**: Build a challenging mini-project to apply your concepts practically.",
             "**Week 3**: Mentor a peer or lead a study group. Explaining concepts boosts retention.",
-            "**Week 4**: Prepare a portfolio of your work and apply for internships or specialized certifications.",
-            "**Ongoing**: Maintain your excellent momentum and always stay curious!"
+            "**Week 4**: Prepare a portfolio of your work and apply for internships or specialized certifications."
         ])
-
+    
+    tips.extend(_time_management_advice(risk_level))
     return tips
 
 

@@ -44,7 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         animateCounter('totalStudents', summary.total);
         animateCounter('goodStudents', summary.good);
         animateCounter('avgStudents', summary.average);
-        animateCounter('badStudents', summary.bad);
+        animateCounter('badStudents', summary.poor);
+
+        // High Risk Segmentation Counts
+        if (summary.attendance) animateCounter('riskAttCount', summary.attendance.poor);
+        if (summary.assignments) animateCounter('riskAssignCount', summary.assignments.poor);
+        if (summary.marks) animateCounter('riskMarksCount', summary.marks.poor);
     }
 
     function animateCounter(elementId, target) {
@@ -64,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Automated Alerts ───────────────────────
     function checkAutomatedAlerts(students) {
-        const highRisk = students.filter(s => s.classification === 'Bad' || s.avg_exam < 40 || s.avg_attendance < 50);
+        const highRisk = students.filter(s => s.classification === 'Poor' || s.avg_exam < 40 || s.avg_attendance < 50);
         const container = document.getElementById('alertBannerContainer');
         if (highRisk.length > 0) {
             container.innerHTML = `
@@ -97,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         try {
             const res = await API.notifyAdmins();
-            alert("Success: " + res.message);
+            showToast(res.message, 'success');
         } catch (err) {
-            alert('Failed to send notifications: ' + err.message);
+            showToast('Failed to send notifications: ' + err.message, 'error');
         } finally {
             if (btn) {
                 btn.innerHTML = '✉️ Notify Admins via Email';
@@ -124,9 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
         pieChartInstance = new Chart(pieCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Good (≥75%)', 'Average (50-74%)', 'At-Risk (<50%)'],
+                labels: ['Good (≥75%)', 'Average (50-74%)', 'Poor (<50%)'],
                 datasets: [{
-                    data: [summary.good, summary.average, summary.bad],
+                    data: [summary.good, summary.average, summary.poor],
                     backgroundColor: ['#43E97B', '#F1C40F', '#FF4757'],
                     borderWidth: 0
                 }]
@@ -284,7 +289,20 @@ document.addEventListener('DOMContentLoaded', () => {
             allStudents = data.students;
             renderTable(allStudents);
         } catch (err) {
-            console.error('Filter failed:', err);
+            showToast('Filter failed: ' + err.message, 'error');
+        }
+    };
+
+    window.filterByRiskType = async function(type) {
+        showToast(`Filtering by ${type} risk...`, 'info');
+        await applyFilters(); // reset others
+        const params = { risk_type: type };
+        try {
+            const data = await API.getStudents(params);
+            allStudents = data.students;
+            renderTable(allStudents);
+        } catch (err) {
+            showToast('Filter failed: ' + err.message, 'error');
         }
     };
 
@@ -393,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             openModal();
         } catch (err) {
-            alert('Failed to load student: ' + err.message);
+            showToast('Failed to load student: ' + err.message, 'error');
         }
     };
 
@@ -406,9 +424,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 department: document.getElementById('editDepartment').value,
             });
             closeModal();
+            showToast('Student information updated successfully', 'success');
             loadDashboard();
         } catch (err) {
-            alert('Failed to save: ' + err.message);
+            showToast('Failed to save: ' + err.message, 'error');
         }
     };
 
@@ -423,10 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadDashboard();
             await editStudent(studentId); 
             
+            showToast('Record updated successfully', 'success');
             const el = document.getElementById(`record-${recordId}`);
             if (el) { el.style.borderColor = 'var(--success)'; setTimeout(() => { el.style.borderColor = 'rgba(255,255,255,0.06)'; }, 1500); }
         } catch (err) {
-            alert('Failed to update record: ' + err.message);
+            showToast('Failed to update record: ' + err.message, 'error');
         }
     };
 
@@ -434,9 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('Delete this academic record?')) return;
         try {
             await API.deleteRecord(recordId);
+            showToast('Record deleted successfully', 'success');
             document.getElementById(`record-${recordId}`)?.remove();
         } catch (err) {
-            alert('Failed to delete: ' + err.message);
+            showToast('Failed to delete: ' + err.message, 'error');
         }
     };
 
@@ -456,10 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
             await API.addRecord(studentId, {
                 subject, exam_score: exam, assignment_score: assign, attendance: att, semester: sem
             });
+            showToast('New academic record added successfully', 'success');
             await loadDashboard();
             await editStudent(studentId); // Refresh modal and risk tags
         } catch (err) {
-            alert('Failed to add record: ' + err.message);
+            showToast('Failed to add record: ' + err.message, 'error');
         }
     };
 
@@ -485,10 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteStudentConfirm = async function(id) {
         try {
             await API.deleteStudent(id);
+            showToast('Student deleted successfully', 'success');
             closeModal();
             loadDashboard();
         } catch (err) {
-            alert('Failed to delete: ' + err.message);
+            showToast('Failed to delete: ' + err.message, 'error');
         }
     };
 
@@ -535,16 +558,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('createPassword').value.trim();
 
         if (!usn || !name || !email || !semester || !department || !password) {
-            alert("Please fill in all details");
+            showToast("Please fill in all details", "warning");
             return;
         }
 
         try {
             await API.createStudent({ usn, name, email, semester, department, password });
+            showToast('Student created successfully', 'success');
             closeCreateModal();
             loadDashboard(); // immediately refreshes the dashboard
         } catch (err) {
-            alert('Failed to create student: ' + err.message);
+            showToast('Failed to create student: ' + err.message, 'error');
         }
     };
 
@@ -558,4 +582,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const panel = document.getElementById('filtersPanel');
         panel.classList.toggle('hidden');
     };
+
+    // ── Toast System ───────────────────────────
+    window.showToast = function(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+        toast.innerHTML = `
+            <span>${icons[type] || '🔔'}</span>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => toast.classList.add('active'), 10);
+        
+        // Remove after 4s
+        setTimeout(() => {
+            toast.classList.remove('active');
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    };
+
+    // ── Features Modal ─────────────────────────
+    window.openFeaturesModal = function() {
+        document.getElementById('featuresModal').classList.add('active');
+    };
+
+    window.closeFeaturesModal = function() {
+        document.getElementById('featuresModal').classList.remove('active');
+    };
+
+    // Close on overlay click
+    document.getElementById('featuresModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'featuresModal') closeFeaturesModal();
+    });
 });

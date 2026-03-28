@@ -13,8 +13,8 @@ class DataManager:
     """SQL-based data manager using SQLAlchemy sessions."""
 
     def __init__(self):
-        # We'll create tables on initialization if they don't exist
-        models.Base.metadata.create_all(bind=engine)
+        # Tables verified in public schema. Skipping auto-create to avoid pooler conflicts.
+        pass
 
     @staticmethod
     def _new_id():
@@ -358,44 +358,75 @@ class DataManager:
             db.close()
 
     def get_dashboard_summary(self):
-        """Optimized summary of all students' performance using limited queries."""
+        """Enhanced summary with breakdowns for Marks, Assignments, and Attendance."""
         db = self._get_db()
         try:
             total_students = db.query(models.Student).count()
             if total_students == 0:
-                return {"total": 0, "good": 0, "average": 0, "bad": 0}
-            
-            # Use SQL grouping/aggregation for efficiency to determine counts
-            # For simplicity, we'll calculate the average exam score per student
-            # and count based on those results in one go.
-            from sqlalchemy import select
+                return {
+                    "total": 0, "good": 0, "average": 0, "poor": 0,
+                    "marks": {"good": 0, "average": 0, "poor": 0},
+                    "assignments": {"good": 0, "average": 0, "poor": 0},
+                    "attendance": {"good": 0, "average": 0, "poor": 0}
+                }
             
             # Subquery to get average academic scores by student_id
             avg_subquery = db.query(
                 models.AcademicRecord.student_id,
                 func.avg(models.AcademicRecord.exam_score).label("avg_exam"),
-                func.avg(models.AcademicRecord.assignment_score).label("avg_assign")
+                func.avg(models.AcademicRecord.assignment_score).label("avg_assign"),
+                func.avg(models.AcademicRecord.attendance).label("avg_att")
             ).group_by(models.AcademicRecord.student_id).all()
             
-            good = avg = bad = 0
+            # Overall counts
+            good = avg = poor = 0
+            
+            # Detailed counts per dimension
+            m_good = m_avg = m_poor = 0
+            a_good = a_avg = a_poor = 0
+            att_good = att_avg = att_poor = 0
+            
             student_ids_with_records = set()
             
             for row in avg_subquery:
                 student_ids_with_records.add(row.student_id)
-                # Weighted score: 70% exam, 30% assignment
-                score = (row.avg_exam * 0.7) + (row.avg_assign * 0.3)
+                # Weighted overall score: 70% exam, 30% assignment
+                overall_score = (row.avg_exam * 0.7) + (row.avg_assign * 0.3)
                 
-                if score >= 75:
-                    good += 1
-                elif score >= 50:
-                    avg += 1
-                else:
-                    bad += 1
+                # Overall
+                if overall_score >= 75: good += 1
+                elif overall_score >= 50: avg += 1
+                else: poor += 1
+                
+                # Marks (Exam)
+                if row.avg_exam >= 75: m_good += 1
+                elif row.avg_exam >= 50: m_avg += 1
+                else: m_poor += 1
+                
+                # Assignments
+                if row.avg_assign >= 75: a_good += 1
+                elif row.avg_assign >= 50: a_avg += 1
+                else: a_poor += 1
+                
+                # Attendance
+                if row.avg_att >= 85: att_good += 1
+                elif row.avg_att >= 75: att_avg += 1
+                else: att_poor += 1
             
-            # Students with no records are considered "bad/at risk" by default for alertness
-            bad += (total_students - len(student_ids_with_records))
+            # Students with no records are considered poor/at-risk
+            missing_count = total_students - len(student_ids_with_records)
+            poor += missing_count
+            m_poor += missing_count
+            a_poor += missing_count
+            att_poor += missing_count
             
-            return {"total": total_students, "good": good, "average": avg, "bad": bad}
+            return {
+                "total": total_students,
+                "good": good, "average": avg, "poor": poor,
+                "marks": {"good": m_good, "average": m_avg, "poor": m_poor},
+                "assignments": {"good": a_good, "average": a_avg, "poor": a_poor},
+                "attendance": {"good": att_good, "average": att_avg, "poor": att_poor}
+            }
         except Exception as e:
             print(f"❌ Error in dashboard summary: {e}")
             return {"total": 0, "good": 0, "average": 0, "bad": 0}

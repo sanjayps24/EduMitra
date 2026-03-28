@@ -27,6 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Global Exception Handler to ensure JSON responses on all errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    import traceback
+    print(f"🔥 Global Error Caught: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)}
+    )
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "service": "EduMitra"}
+
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
 
 
@@ -76,6 +91,11 @@ class StudentUpdate(BaseModel):
 
 class ChatMessage(BaseModel):
     message: str
+
+class InteractivePrediction(BaseModel):
+    exam_score: float
+    assignment_score: float
+    attendance: float
 
 
 # ── Auth Helper ─────────────────────────────────────────────────
@@ -170,7 +190,8 @@ async def list_students(
     search: Optional[str] = None,
     sort_by: Optional[str] = Query(None, description="name, exam_score, attendance, usn"),
     sort_order: Optional[str] = Query("asc", description="asc or desc"),
-    classification: Optional[str] = Query(None, description="Good, Average, Bad"),
+    classification: Optional[str] = Query(None, description="Good, Average, Poor"),
+    risk_type: Optional[str] = Query(None, description="attendance, assignments, marks"),
     min_attendance: Optional[float] = None,
     max_attendance: Optional[float] = None,
     min_marks: Optional[float] = None,
@@ -195,6 +216,14 @@ async def list_students(
     # Filter by classification
     if classification:
         enriched = [s for s in enriched if s["classification"] == classification]
+
+    # Filter by risk_type (segmentation)
+    if risk_type == "attendance":
+        enriched = [s for s in enriched if s["avg_attendance"] < 75]
+    elif risk_type == "assignments":
+        enriched = [s for s in enriched if s["avg_assignment"] < 50]
+    elif risk_type == "marks":
+        enriched = [s for s in enriched if s["avg_exam"] < 50]
 
     # Filter by department
     if department:
@@ -343,6 +372,12 @@ async def chatbot(student_id: str, data: ChatMessage):
     stats = dm.get_student_stats(student_id)
     response = get_chatbot_response(data.message, stats)
     return {"response": response}
+
+
+@app.post("/api/predict/interactive")
+async def predict_interactive(data: InteractivePrediction):
+    from ml_model import predict_risk
+    return predict_risk(data.exam_score, data.assignment_score, data.attendance)
 
 
 # ── Notifications ───────────────────────────────────────────────
