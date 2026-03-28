@@ -11,7 +11,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: PYTHON_VERSION
-        value: "3.11.7"
+        value: "3.11.0"
       - key: SMTP_SERVER
         value: "smtp.gmail.com"
       - key: SMTP_PORT
