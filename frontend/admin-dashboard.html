@@ -332,24 +332,29 @@
                 </div>
 
                 <div class="mt-6 pt-6" style="border-top:1px solid rgba(255,255,255,0.06)">
-                    <h3 class="text-sm font-bold mb-4 gradient-text">Initial Academic Record (Optional)</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="form-label text-xs">Subject Name</label>
-                            <input type="text" id="createSubjName" class="form-input form-input-sm" placeholder="e.g. Mathematics">
-                        </div>
-                        <div class="grid grid-cols-3 gap-3">
-                            <div>
-                                <label class="form-label text-xs">Exam %</label>
-                                <input type="number" id="createSubjExam" class="form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold gradient-text">Initial Academic Records</h3>
+                        <button onclick="addCreateRecordRow()" class="btn-sm btn-secondary" style="padding:4px 8px;font-size:0.7rem">+ Add Subject</button>
+                    </div>
+                    <div id="createRecordsContainer" class="space-y-4">
+                        <div class="create-record-row p-3 rounded-lg" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
+                            <div class="flex justify-between items-center mb-2">
+                                <input type="text" class="createSubjName form-input form-input-sm" style="flex:1" placeholder="Subject Name (e.g. Mathematics)">
+                                <button onclick="this.parentElement.parentElement.remove()" class="btn-icon ml-2 text-danger" style="font-size:1rem" title="Remove">✕</button>
                             </div>
-                            <div>
-                                <label class="form-label text-xs">Assign %</label>
-                                <input type="number" id="createSubjAssign" class="form-input form-input-sm" min="0" max="100" placeholder="0-100">
-                            </div>
-                            <div>
-                                <label class="form-label text-xs">Attend %</label>
-                                <input type="number" id="createSubjAttend" class="form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="form-label text-xs mb-1">Exam %</label>
+                                    <input type="number" class="createSubjExam form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                                </div>
+                                <div>
+                                    <label class="form-label text-xs mb-1">Assign %</label>
+                                    <input type="number" class="createSubjAssign form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                                </div>
+                                <div>
+                                    <label class="form-label text-xs mb-1">Attend %</label>
+                                    <input type="number" class="createSubjAttend form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (attendanceChartInstance) attendanceChartInstance.destroy();
 
         const createMiniPie = (ctx, data, title) => {
+            if (!ctx) return null;
             return new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -376,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const records = data.records;
 
             let recordsHtml = records.map((r, i) => `
-                <div class="p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:8px" id="record-${r.id}">
+                <div class="p-4 rounded-xl record-item-edit" data-record-id="${r.id}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:8px" id="record-${r.id}">
                     <div class="flex items-center justify-between mb-2">
                         <span class="font-semibold text-sm" style="color:var(--primary-light)">${r.subject}</span>
                         <button class="btn-danger btn-sm" onclick="deleteRecord('${r.id}','${id}')">Delete</button>
@@ -395,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <input type="number" class="form-input text-sm" value="${r.attendance}" min="0" max="100" id="att-${r.id}">
                         </div>
                     </div>
-                    <button class="btn-primary btn-sm mt-2 w-full" style="padding:8px" onclick="saveRecord('${r.id}', '${id}')">Save Record Update</button>
                 </div>
             `).join('');
 
@@ -420,11 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <input type="text" class="form-input" value="${s.department || ''}" id="editDepartment">
                         </div>
                     </div>
-                    <button class="btn-primary w-full" onclick="saveStudent('${s.id}')">Save Student Info</button>
 
                     <hr style="border-color:rgba(255,255,255,0.06);margin:16px 0">
                     <h3 class="text-lg font-bold" style="color:var(--text-primary)">Academic Records</h3>
                     <div id="recordsList">${recordsHtml || '<p style="color:var(--text-muted)">No records found.</p>'}</div>
+
+                    <button class="btn-primary w-full mt-6" style="padding:14px;font-size:1.1rem" onclick="saveAllModifications('${s.id}')">💾 Save Student & All Records</button>
 
                     <hr style="border-color:rgba(255,255,255,0.06);margin:16px 0">
                     <h4 class="font-semibold" style="color:var(--accent)">+ Add New Record</h4>
@@ -459,38 +460,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.saveStudent = async function(id) {
+    window.saveAllModifications = async function(id) {
         try {
-            await API.updateStudent(id, {
+            const submitBtn = event && event.currentTarget ? event.currentTarget : document.querySelector('button[onclick^="saveAllModifications"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = "⏳ Saving..."; }
+
+            // 1. Update Student Profile
+            const studentUpdate = API.updateStudent(id, {
                 name: document.getElementById('editName').value,
                 email: document.getElementById('editEmail').value,
                 semester: parseInt(document.getElementById('editSemester').value),
                 department: document.getElementById('editDepartment').value,
             });
+
+            // 2. Update all records
+            const recordUpdates = [];
+            const recordRows = document.querySelectorAll('.record-item-edit');
+            recordRows.forEach(row => {
+                const recordId = row.getAttribute('data-record-id');
+                const exam = parseFloat(document.getElementById(`exam-${recordId}`).value);
+                const assign = parseFloat(document.getElementById(`assign-${recordId}`).value);
+                const att = parseFloat(document.getElementById(`att-${recordId}`).value);
+
+                recordUpdates.push(API.updateRecord(recordId, {
+                    exam_score: exam,
+                    assignment_score: assign,
+                    attendance: att
+                }));
+            });
+
+            await Promise.all([studentUpdate, ...recordUpdates]);
+
+            showToast('Student & Records saved successfully!', 'success');
             closeModal();
-            showToast('Student information updated successfully', 'success');
             loadDashboard();
         } catch (err) {
-            showToast('Failed to save: ' + err.message, 'error');
-        }
-    };
-
-    window.saveRecord = async function(recordId, studentId) {
-        try {
-            await API.updateRecord(recordId, {
-                exam_score: parseFloat(document.getElementById(`exam-${recordId}`).value),
-                assignment_score: parseFloat(document.getElementById(`assign-${recordId}`).value),
-                attendance: parseFloat(document.getElementById(`att-${recordId}`).value),
-            });
-            // Immediately reload dashboard and edit student UI to reflect new risks
-            await loadDashboard();
-            await editStudent(studentId); 
-            
-            showToast('Record updated successfully', 'success');
-            const el = document.getElementById(`record-${recordId}`);
-            if (el) { el.style.borderColor = 'var(--success)'; setTimeout(() => { el.style.borderColor = 'rgba(255,255,255,0.06)'; }, 1500); }
-        } catch (err) {
-            showToast('Failed to update record: ' + err.message, 'error');
+            showToast('Failed to save modifications: ' + err.message, 'error');
+            const submitBtn = document.querySelector('button[onclick^="saveAllModifications"]');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = "💾 Save Student & All Records"; }
         }
     };
 
@@ -583,6 +590,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('createModal').classList.add('active');
     };
 
+    window.addCreateRecordRow = function() {
+        const container = document.getElementById('createRecordsContainer');
+        const rowHTML = `
+            <div class="create-record-row p-3 rounded-lg mt-3" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
+                <div class="flex justify-between items-center mb-2">
+                    <input type="text" class="createSubjName form-input form-input-sm" style="flex:1" placeholder="Subject Name (e.g. Mathematics)">
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-icon ml-2 text-danger" style="font-size:1rem" title="Remove">✕</button>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="form-label text-xs mb-1">Exam %</label>
+                        <input type="number" class="createSubjExam form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                    <div>
+                        <label class="form-label text-xs mb-1">Assign %</label>
+                        <input type="number" class="createSubjAssign form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                    <div>
+                        <label class="form-label text-xs mb-1">Attend %</label>
+                        <input type="number" class="createSubjAttend form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', rowHTML);
+    };
+
     window.closeCreateModal = function() {
         document.getElementById('createModal').classList.remove('active');
         document.getElementById('createName').value = '';
@@ -591,11 +624,32 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('createSemester').value = '1';
         document.getElementById('createDepartment').value = '';
         document.getElementById('createPassword').value = '';
-        // Clear academic record fields
-        document.getElementById('createSubjName').value = '';
-        document.getElementById('createSubjExam').value = '';
-        document.getElementById('createSubjAssign').value = '';
-        document.getElementById('createSubjAttend').value = '';
+        
+        // Reset dynamic records container to a single empty row
+        const container = document.getElementById('createRecordsContainer');
+        if (container) {
+            container.innerHTML = `
+            <div class="create-record-row p-3 rounded-lg" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05)">
+                <div class="flex justify-between items-center mb-2">
+                    <input type="text" class="createSubjName form-input form-input-sm" style="flex:1" placeholder="Subject Name (e.g. Mathematics)">
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-icon ml-2 text-danger" style="font-size:1rem" title="Remove">✕</button>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="form-label text-xs mb-1">Exam %</label>
+                        <input type="number" class="createSubjExam form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                    <div>
+                        <label class="form-label text-xs mb-1">Assign %</label>
+                        <input type="number" class="createSubjAssign form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                    <div>
+                        <label class="form-label text-xs mb-1">Attend %</label>
+                        <input type="number" class="createSubjAttend form-input form-input-sm" min="0" max="100" placeholder="0-100">
+                    </div>
+                </div>
+            </div>`;
+        }
     };
 
     window.submitCreateStudent = async function() {
@@ -606,18 +660,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const department = document.getElementById('createDepartment').value.trim();
         const password = document.getElementById('createPassword').value.trim();
 
-        // New record fields
-        const subjName = document.getElementById('createSubjName').value.trim();
-        const subjExam = document.getElementById('createSubjExam').value.trim();
-        const subjAssign = document.getElementById('createSubjAssign').value.trim();
-        const subjAttend = document.getElementById('createSubjAttend').value.trim();
-
         if (!usn || !name || !email || !semester || !department || !password) {
             showToast("Please fill in all core student details", "warning");
             return;
         }
 
-        // Simple Email Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             showToast("Please enter a valid email address", "warning");
@@ -625,19 +672,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const records = [];
-        if (subjName && subjExam !== "" && subjAssign !== "" && subjAttend !== "") {
-            records.push({
-                subject: subjName,
-                exam_score: parseFloat(subjExam),
-                assignment_score: parseFloat(subjAssign),
-                attendance: parseFloat(subjAttend),
-                semester: semester
-            });
-        }
+        const rows = document.querySelectorAll('#createRecordsContainer .create-record-row');
+        rows.forEach(row => {
+            const subjName = row.querySelector('.createSubjName').value.trim();
+            const subjExam = row.querySelector('.createSubjExam').value.trim();
+            const subjAssign = row.querySelector('.createSubjAssign').value.trim();
+            const subjAttend = row.querySelector('.createSubjAttend').value.trim();
+            
+            if (subjName && subjExam !== "" && subjAssign !== "" && subjAttend !== "") {
+                records.push({
+                    subject: subjName,
+                    exam_score: parseFloat(subjExam),
+                    assignment_score: parseFloat(subjAssign),
+                    attendance: parseFloat(subjAttend),
+                    semester: semester
+                });
+            }
+        });
 
         try {
             await API.createStudent({ usn, name, email, semester, department, password, records });
-            showToast(records.length > 0 ? 'Student & initial records created' : 'Student profile created', 'success');
+            showToast(records.length > 0 ? 'Student & ' + records.length + ' records created' : 'Student profile created', 'success');
             closeCreateModal();
             loadDashboard(); 
         } catch (err) {
